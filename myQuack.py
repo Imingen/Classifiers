@@ -18,8 +18,11 @@ global X_ValidationData
 global X_TestData
 
 global Y_TrainingData
+Y_TrainingData = []
 global Y_ValidationData
+Y_ValidationData = []
 global Y_TestData 
+Y_TestData = [] 
 
 
 def my_team():
