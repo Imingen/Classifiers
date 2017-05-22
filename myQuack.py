@@ -70,8 +70,7 @@ def partition_dataset(X_All):
             Y_TestData.append(1)
         elif 'B' in str(elem[1]):
             Y_TestData.append(0)      
-            
-            
+               
     return randomElements
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -94,7 +93,10 @@ def prepare_dataset(dataset_path):
 	X,y
     '''
     X_All = np.genfromtxt(dataset_path, delimiter=",", dtype=None)
+    X_All = np.array(X_All)
     randX_All = partition_dataset(X_All)
+
+    randX_All = np.array(randX_All)
     
     Y = []
     for elem in randX_All:
@@ -102,7 +104,9 @@ def prepare_dataset(dataset_path):
             Y.append(1)
         elif 'B' in str(elem[1]):
             Y.append(0)
+    Y = np.array(Y)
     return(randX_All, Y)
+    
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def build_NB_classifier(X_training, y_training):
