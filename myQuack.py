@@ -13,6 +13,8 @@ Write a main function that calls different functions to perform the required tas
 import numpy as np
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#Arrays for separating data into training, validation and testing, and each into 
+# X and Y where Y is the class label for each data point corresponding to a row in X
 global X_TrainingData
 global X_ValidationData 
 global X_TestData
@@ -47,8 +49,10 @@ def partition_dataset(X_All):
     n7 = int(n*.7)
     n85 = int(n*.85)
     randomOrder = np.random.permutation(n)
+    #Randomize order of data
     randomElements = X_All[randomOrder]    
 
+    #Separate data into training, validation and testing 70:15:15
     X_TrainingData = randomElements[:n7]
     X_ValidationData = randomElements[n7:n85]
     X_TestData = randomElements[n85:]
@@ -89,8 +93,7 @@ def prepare_dataset(dataset_path):
 
     @param dataset_path: full path of the dataset text file
 
-    @return
-	X,y
+    @return X,y
     '''
     X_All = np.genfromtxt(dataset_path, delimiter=",", dtype=None)
     X_All = np.array(X_All)
@@ -99,12 +102,16 @@ def prepare_dataset(dataset_path):
     randX_All = np.array(randX_All)
     
     Y = []
+    
+    #Set Y equal to 0 or 1 for each M or B in x[:][1]
     for elem in randX_All:
         if 'M' in str(elem[1]):
             Y.append(1)
         elif 'B' in str(elem[1]):
             Y.append(0)
+            
     Y = np.array(Y)
+    
     return(randX_All, Y)
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
