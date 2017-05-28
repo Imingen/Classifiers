@@ -11,20 +11,16 @@ Write a main function that calls different functions to perform the required tas
 
 
 import numpy as np
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import NearestNeighbors
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Arrays for separating data into training, validation and testing, and each into 
 # X and Y where Y is the class label for each data point corresponding to a row in X
-global X_TrainingData
-global X_ValidationData 
-global X_TestData
-
-global Y_TrainingData
-Y_TrainingData = []
-global Y_ValidationData
-Y_ValidationData = []
-global Y_TestData 
-Y_TestData = [] 
 
 
 def my_team():
@@ -37,45 +33,33 @@ def my_team():
     return [ (9890394, 'Vanessa', 'Gutierrez'), (9884050, 'Glenn', 'Christensen'), (9884076, 'Marius', 'Imingen') ]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-def partition_dataset(X_All):
+def partition_dataset(X_All, Y_All):
     '''Takes data set, randomizes order of rows, assigns 70% to Training, 15% 
-    to Testing and 15% to Validation, and appropriate values to Y arrays
+    to Testing and 15% to Validation, and appropriate values to Y array
     
-    @param not random data set
-    @return randomized dataset
+    @param X_All not random data set
+    @param Y_All not random data labels
+    @return randomized training, validation and testing datasets and data labels
     '''
     
-    n = X_All.shape[0]
+    n = len(X_All)
     n7 = int(n*.7)
     n85 = int(n*.85)
+    
     randomOrder = np.random.permutation(n)
     #Randomize order of data
-    randomElements = X_All[randomOrder]    
+    randomX = X_All[randomOrder]  
+    randomY = Y_All[randomOrder]
 
     #Separate data into training, validation and testing 70:15:15
-    X_TrainingData = randomElements[:n7]
-    X_ValidationData = randomElements[n7:n85]
-    X_TestData = randomElements[n85:]
-    
-    for elem in X_TrainingData:
-        if 'M' in str(elem[1]):
-            Y_TrainingData.append(1)
-        elif 'B' in str(elem[1]):
-            Y_TrainingData.append(0)
-
-    for elem in X_ValidationData:
-        if 'M' in str(elem[1]):
-            Y_ValidationData.append(1)
-        elif 'B' in str(elem[1]):
-            Y_ValidationData.append(0)
-            
-    for elem in X_TestData:
-        if 'M' in str(elem[1]):
-            Y_TestData.append(1)
-        elif 'B' in str(elem[1]):
-            Y_TestData.append(0)      
-               
-    return randomElements
+    X_Train = randomX[:n7]
+    X_Valid = randomX[n7:n85]
+    X_Test = randomX[n85:]
+    Y_Train = randomY[:n7]
+    Y_Valid = randomY[n7:n85]
+    Y_Test = randomY[n85:]    
+      
+    return(X_Train, X_Valid, X_Test, Y_Train, Y_Valid, Y_Test)    
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -97,22 +81,23 @@ def prepare_dataset(dataset_path):
     '''
     X_All = np.genfromtxt(dataset_path, delimiter=",", dtype=None)
     X_All = np.array(X_All)
-    randX_All = partition_dataset(X_All)
 
-    randX_All = np.array(randX_All)
+    X = list()
+    Y = list()
     
-    Y = []
-    
-    #Set Y equal to 0 or 1 for each M or B in x[:][1]
-    for elem in randX_All:
+    #Set Y = to 0 or 1 for each M or B in x[:][1], remove ID and class from X
+    for elem in X_All:
+        elem = list(elem)
         if 'M' in str(elem[1]):
-            Y.append(1)
+            Y.append((1,))
         elif 'B' in str(elem[1]):
-            Y.append(0)
-            
+            Y.append((0,))
+        X.append(elem[2:])
+    
+    X = np.array(X)
     Y = np.array(Y)
     
-    return(randX_All, Y)
+    return(X, Y)
     
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -127,8 +112,11 @@ def build_NB_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"
-    raise NotImplementedError()
+    
+    model = GaussianNB()
+    clf = model.fit(X_training, y_training)
+    
+    return clf
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -143,8 +131,8 @@ def build_DT_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"
-    raise NotImplementedError()
+
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -171,7 +159,7 @@ def build_SVM_classifier(X_training, y_training):
     @param
 	X_training: X_training[i,:] is the ith example
 	y_training: y_training[i] is the class label of X_training[i,:]
-
+                        
     @return
 	clf : the classifier built in this function
     '''
@@ -181,8 +169,19 @@ def build_SVM_classifier(X_training, y_training):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__": # call your functions here
-    pass
-   
-    prepare_dataset("medical_records.data")
+    
+    X, Y = prepare_dataset("medical_records.data")
 
+    X_Train, X_Valid, X_Test, Y_Train, Y_Valid, Y_Test = partition_dataset(X, Y)
+    
+    #print("X train:", X_Train, "\nX Valid:", X_Valid, "\nX Test:", X_Test, "\nY train:", Y_Train, "\nY Valid:", Y_Valid, "\nY Test:", Y_Test )
+    
+    #Get Naive Bayes Classifier
+    NB_clf = build_NB_classifier(X_Train, Y_Train.ravel())
+    #Run naive bayes on validation data
+    NB_Valid_acc = accuracy_score(Y_Valid, NB_clf.predict(X_Valid))
+    print("Naive Bayes Validation Accuracy:", NB_Valid_acc)
+    #Run naive bayes on testing data
+    NB_Test_acc = accuracy_score(Y_Test, NB_clf.predict(X_Test))
+    print("Naive Bayes Testing Accuracy: ", NB_Test_acc)
 
