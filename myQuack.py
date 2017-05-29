@@ -13,7 +13,7 @@ Write a main function that calls different functions to perform the required tas
 import numpy as np
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import NearestNeighbors
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 
@@ -132,7 +132,10 @@ def build_DT_classifier(X_training, y_training):
 	clf : the classifier built in this function
     '''
 
+    model = DecisionTreeClassifier()
+    clf = model.fit(X_training, y_training)
 
+    return clf
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -145,11 +148,44 @@ def build_NN_classifier(X_training, y_training):
 	y_training: y_training[i] is the class label of X_training[i,:]
 
     @return
-	clf : the classifier built in this function
-    '''
-    ##         "INSERT YOUR CODE HERE"
-    raise NotImplementedError()
+	clf : the classifiers built in this function
+    '''    
+    classifiers = dict()
+    for i in range(1,10):
+        if (i % 2 != 0):
+            model = KNeighborsClassifier(n_neighbors = i)
+            clf = model.fit(X_training, y_training)
+            classifiers[i] = clf
 
+    return (classifiers)
+
+def best_NN_classifier(classifiers, X_validation, y_validation):
+    '''
+    Run the nearest neighbor classifiers with different numbers of neighbors on X_vaildation and y_validation sets
+    
+    @param
+    classifiers: list of nearest neighbor classifiers with different number neighbors
+	X_validation: X_validationg[i,:] is the ith example
+	y_validation: y_validation[i] is the class label of X_validation[i,:]
+
+    @return
+	clf : the most accurate classifier run in this function
+    '''    
+
+    best_acc = 0
+    
+    for key in classifiers:
+        temp_acc = accuracy_score(y_validation, classifiers[key].predict(X_validation[]))
+        print(key, ':', temp_acc)
+        if (best_acc < temp_acc):
+            best_NN_clf = classifiers[key]
+            best_NN_n = key
+            best_acc = temp_acc
+            
+    print("best:", best_NN_n, "acc:", best_acc )        
+    return (best_NN_clf, best_NN_n)
+    
+    
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def build_SVM_classifier(X_training, y_training):
@@ -185,3 +221,20 @@ if __name__ == "__main__": # call your functions here
     NB_Test_acc = accuracy_score(Y_Test, NB_clf.predict(X_Test))
     print("Naive Bayes Testing Accuracy: ", NB_Test_acc)
 
+    #Get decision tree classifier
+    DT_clf = build_DT_classifier(X_Train, Y_Train.ravel())
+    #Run decision tree on validation data and get accuracy
+    DT_Valid_acc = accuracy_score(Y_Valid, DT_clf.predict(X_Valid))
+    print("Decision Tree Valiation Accuracy:", DT_Valid_acc)
+    #Run decision tree on validation data and get accuracy
+    DT_Test_acc = accuracy_score(Y_Test, DT_clf.predict(X_Test))
+    print("Decision Tree Testing Accuracy:", DT_Test_acc)
+    
+    
+    
+    
+    NN_clfs = build_NN_classifier(X_Train, Y_Train.ravel())
+    NN_clf, NN_n = best_NN_classifier(NN_clfs, X_Valid, Y_Valid.ravel())
+
+    NN_Test_acc = accuracy_score(Y_Test, NN_clf.predict(X_Test))
+    print("Nearest Neighbour Testing Accuracy:", NN_Test_acc)
