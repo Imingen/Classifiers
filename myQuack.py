@@ -16,7 +16,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
-
+from sklearn.model_selection import KFold
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Arrays for separating data into training, validation and testing, and each into
@@ -109,17 +109,29 @@ def build_NB_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
+    CV_results = []
+    kf = KFold(n_splits = 10)
 
     model = GaussianNB()
-    clf = model.fit(X_training, y_training)
-
-    return clf
+    for train, valid in kf.split(X_training):
+        clf = model.fit(X_training[train], y_training[train])
+        CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf),]
+   
+    best_accuracy = 0
+    for result in CV_results:
+        if (result[0] > best_accuracy):
+            best_accuracy = result[0]
+            best_clf = result[1]
+            
+    return (best_clf, best_accuracy, CV_results)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def build_DT_classifier(X_training, y_training):
     '''
     Build a Decision Tree classifier based on the training set X_training, y_training.
+
+    #MARIUSSSSS
 
     @param
 	X_training: X_training[i,:] is the ith example
@@ -147,6 +159,7 @@ def build_NN_classifier(X_training, y_training):
     @return
 	clf : the classifiers built in this function
     '''
+    
     classifiers = dict()
     for i in range(1,10):
         if (i % 2 != 0):
@@ -169,18 +182,18 @@ def best_NN_classifier(classifiers, X_validation, y_validation):
 	clf : the most accurate classifier run in this function
     '''
 
-    best_acc = 0
-
-    for key in classifiers:
-        temp_acc = accuracy_score(y_validation, classifiers[key].predict(X_validation[]))
-        print(key, ':', temp_acc)
-        if (best_acc < temp_acc):
-            best_NN_clf = classifiers[key]
-            best_NN_n = key
-            best_acc = temp_acc
-
-    print("best:", best_NN_n, "acc:", best_acc )
-    return (best_NN_clf, best_NN_n)
+#    best_acc = 0
+#
+#    for key in classifiers:
+#        temp_acc = accuracy_score(y_validation, classifiers[key].predict(X_validation[]))
+#        print(key, ':', temp_acc)
+#        if (best_acc < temp_acc):
+#            best_NN_clf = classifiers[key]
+#            best_NN_n = key
+#            best_acc = temp_acc
+#
+#    print("best:", best_NN_n, "acc:", best_acc )
+#    return (best_NN_clf, best_NN_n)
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -188,6 +201,8 @@ def best_NN_classifier(classifiers, X_validation, y_validation):
 def build_SVM_classifier(X_training, y_training):
     '''
     Build a Support Vector Machine classifier based on the training set X_training, y_training.
+
+    #glenglenglen
 
     @param
 	X_training: X_training[i,:] is the ith example
@@ -209,12 +224,12 @@ if __name__ == "__main__": # call your functions here
 
     #print("X train:", X_Train, "\nX Valid:", X_Valid, "\nX Test:", X_Test, "\nY train:", Y_Train, "\nY Valid:", Y_Valid, "\nY Test:", Y_Test )
 
-    #Check if bayes needs cross validation
-    #Get Naive Bayes Classifier
-    NB_clf = build_NB_classifier(X_Train, Y_Train.ravel())
+    #Get Naive Bayes Classifier, accuracy, and other results via cross validation
+    NB_clf, NB_clf_acc, NB_CV_results = build_NB_classifier(X_Train, Y_Train.ravel())
+    print("Naive Bayes Classifer best accuracy in k-fold cross validation:", NB_clf_acc)
     #Run naive bayes on testing data
     NB_Test_acc = accuracy_score(Y_Test, NB_clf.predict(X_Test))
-    print("Naive Bayes Testing Accuracy: ", NB_Test_acc)
+    print("Naive Bayes Testing Accuracy: ", NB_Test_acc)        
 
     #check if decision tree needs cross validation
     #Get decision tree classifier
@@ -226,8 +241,8 @@ if __name__ == "__main__": # call your functions here
 
 
 
-    NN_clfs = build_NN_classifier(X_Train, Y_Train.ravel())
-    NN_clf, NN_n = best_NN_classifier(NN_clfs, X_Valid, Y_Valid.ravel())
-
-    NN_Test_acc = accuracy_score(Y_Test, NN_clf.predict(X_Test))
-    print("Nearest Neighbour Testing Accuracy:", NN_Test_acc)
+#    NN_clfs = build_NN_classifier(X_Train, Y_Train.ravel())
+#    NN_clf, NN_n = best_NN_classifier(NN_clfs, X_Valid, Y_Valid.ravel())
+#
+#    NN_Test_acc = accuracy_score(Y_Test, NN_clf.predict(X_Test))
+#    print("Nearest Neighbour Testing Accuracy:", NN_Test_acc)
