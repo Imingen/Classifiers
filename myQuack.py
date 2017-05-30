@@ -1,10 +1,10 @@
 
 '''
 
-Some partially defined functions for the Machine Learning assignment. 
+Some partially defined functions for the Machine Learning assignment.
 
 You should complete the provided functions and add more functions and classes as necessary.
- 
+
 Write a main function that calls different functions to perform the required tasks.
 
 '''
@@ -19,7 +19,7 @@ from sklearn.metrics import accuracy_score
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#Arrays for separating data into training, validation and testing, and each into 
+#Arrays for separating data into training, validation and testing, and each into
 # X and Y where Y is the class label for each data point corresponding to a row in X
 
 
@@ -34,32 +34,29 @@ def my_team():
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def partition_dataset(X_All, Y_All):
-    '''Takes data set, randomizes order of rows, assigns 70% to Training, 15% 
+    '''Takes data set, randomizes order of rows, assigns 70% to Training, 15%
     to Testing and 15% to Validation, and appropriate values to Y array
-    
+
     @param X_All not random data set
     @param Y_All not random data labels
     @return randomized training, validation and testing datasets and data labels
     '''
-    
+
     n = len(X_All)
-    n7 = int(n*.7)
-    n85 = int(n*.85)
-    
+    n80 = int(n*.8)
+
     randomOrder = np.random.permutation(n)
     #Randomize order of data
-    randomX = X_All[randomOrder]  
+    randomX = X_All[randomOrder]
     randomY = Y_All[randomOrder]
 
     #Separate data into training, validation and testing 70:15:15
-    X_Train = randomX[:n7]
-    X_Valid = randomX[n7:n85]
-    X_Test = randomX[n85:]
-    Y_Train = randomY[:n7]
-    Y_Valid = randomY[n7:n85]
-    Y_Test = randomY[n85:]    
-      
-    return(X_Train, X_Valid, X_Test, Y_Train, Y_Valid, Y_Test)    
+    X_Train = randomX[:n80]
+    X_Test = randomX[n80:]
+    Y_Train = randomY[:n80]
+    Y_Test = randomY[n80:]
+
+    return(X_Train, X_Test, Y_Train, Y_Test)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -84,7 +81,7 @@ def prepare_dataset(dataset_path):
 
     X = list()
     Y = list()
-    
+
     #Set Y = to 0 or 1 for each M or B in x[:][1], remove ID and class from X
     for elem in X_All:
         elem = list(elem)
@@ -93,12 +90,12 @@ def prepare_dataset(dataset_path):
         elif 'B' in str(elem[1]):
             Y.append((0,))
         X.append(elem[2:])
-    
+
     X = np.array(X)
     Y = np.array(Y)
-    
+
     return(X, Y)
-    
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def build_NB_classifier(X_training, y_training):
@@ -112,10 +109,10 @@ def build_NB_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    
+
     model = GaussianNB()
     clf = model.fit(X_training, y_training)
-    
+
     return clf
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -149,7 +146,7 @@ def build_NN_classifier(X_training, y_training):
 
     @return
 	clf : the classifiers built in this function
-    '''    
+    '''
     classifiers = dict()
     for i in range(1,10):
         if (i % 2 != 0):
@@ -162,7 +159,7 @@ def build_NN_classifier(X_training, y_training):
 def best_NN_classifier(classifiers, X_validation, y_validation):
     '''
     Run the nearest neighbor classifiers with different numbers of neighbors on X_vaildation and y_validation sets
-    
+
     @param
     classifiers: list of nearest neighbor classifiers with different number neighbors
 	X_validation: X_validationg[i,:] is the ith example
@@ -170,10 +167,10 @@ def best_NN_classifier(classifiers, X_validation, y_validation):
 
     @return
 	clf : the most accurate classifier run in this function
-    '''    
+    '''
 
     best_acc = 0
-    
+
     for key in classifiers:
         temp_acc = accuracy_score(y_validation, classifiers[key].predict(X_validation[]))
         print(key, ':', temp_acc)
@@ -181,11 +178,11 @@ def best_NN_classifier(classifiers, X_validation, y_validation):
             best_NN_clf = classifiers[key]
             best_NN_n = key
             best_acc = temp_acc
-            
-    print("best:", best_NN_n, "acc:", best_acc )        
+
+    print("best:", best_NN_n, "acc:", best_acc )
     return (best_NN_clf, best_NN_n)
-    
-    
+
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def build_SVM_classifier(X_training, y_training):
@@ -195,7 +192,7 @@ def build_SVM_classifier(X_training, y_training):
     @param
 	X_training: X_training[i,:] is the ith example
 	y_training: y_training[i] is the class label of X_training[i,:]
-                        
+
     @return
 	clf : the classifier built in this function
     '''
@@ -205,34 +202,30 @@ def build_SVM_classifier(X_training, y_training):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if __name__ == "__main__": # call your functions here
-    
+
     X, Y = prepare_dataset("medical_records.data")
 
-    X_Train, X_Valid, X_Test, Y_Train, Y_Valid, Y_Test = partition_dataset(X, Y)
-    
+    X_Train, X_Test, Y_Train, Y_Test = partition_dataset(X, Y)
+
     #print("X train:", X_Train, "\nX Valid:", X_Valid, "\nX Test:", X_Test, "\nY train:", Y_Train, "\nY Valid:", Y_Valid, "\nY Test:", Y_Test )
-    
+
+    #Check if bayes needs cross validation
     #Get Naive Bayes Classifier
     NB_clf = build_NB_classifier(X_Train, Y_Train.ravel())
-    #Run naive bayes on validation data
-    NB_Valid_acc = accuracy_score(Y_Valid, NB_clf.predict(X_Valid))
-    print("Naive Bayes Validation Accuracy:", NB_Valid_acc)
     #Run naive bayes on testing data
     NB_Test_acc = accuracy_score(Y_Test, NB_clf.predict(X_Test))
     print("Naive Bayes Testing Accuracy: ", NB_Test_acc)
 
+    #check if decision tree needs cross validation
     #Get decision tree classifier
     DT_clf = build_DT_classifier(X_Train, Y_Train.ravel())
     #Run decision tree on validation data and get accuracy
-    DT_Valid_acc = accuracy_score(Y_Valid, DT_clf.predict(X_Valid))
-    print("Decision Tree Valiation Accuracy:", DT_Valid_acc)
-    #Run decision tree on validation data and get accuracy
     DT_Test_acc = accuracy_score(Y_Test, DT_clf.predict(X_Test))
     print("Decision Tree Testing Accuracy:", DT_Test_acc)
-    
-    
-    
-    
+
+
+
+
     NN_clfs = build_NN_classifier(X_Train, Y_Train.ravel())
     NN_clf, NN_n = best_NN_classifier(NN_clfs, X_Valid, Y_Valid.ravel())
 
