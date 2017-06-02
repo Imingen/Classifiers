@@ -140,11 +140,22 @@ def build_DT_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-
+    CV_results = []
+    kf = KFold(n_splits = 10)
+    
     model = DecisionTreeClassifier()
-    clf = model.fit(X_training, y_training)
+    for train, valid in kf.split(X_training):
+        clf = model.fit(X_training[train], y_training[train])
+        CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf),]
+        
+    best_accuracy = 0
+    for result in CV_results:
+        if(result[0] > best_accuracy):
+            best_accuracy = result[0]
+            best_clf = result[1]
+    
 
-    return clf
+    return (best_clf, best_accuracy, CV_results)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -233,7 +244,8 @@ if __name__ == "__main__": # call your functions here
 
     #check if decision tree needs cross validation
     #Get decision tree classifier
-    DT_clf = build_DT_classifier(X_Train, Y_Train.ravel())
+    DT_clf, DT_clf_acc, DT_CV_results = build_DT_classifier(X_Train, Y_Train.ravel())
+    print("Decision Tree Classififer best accuracy in k-fold cross validation:", DT_clf_acc)
     #Run decision tree on validation data and get accuracy
     DT_Test_acc = accuracy_score(Y_Test, DT_clf.predict(X_Test))
     print("Decision Tree Testing Accuracy:", DT_Test_acc)
