@@ -116,13 +116,13 @@ def build_NB_classifier(X_training, y_training):
     for train, valid in kf.split(X_training):
         clf = model.fit(X_training[train], y_training[train])
         CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf),]
-   
+
     best_accuracy = 0
     for result in CV_results:
         if (result[0] > best_accuracy):
             best_accuracy = result[0]
             best_clf = result[1]
-            
+
     return (best_clf, best_accuracy, CV_results)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -142,18 +142,18 @@ def build_DT_classifier(X_training, y_training):
     '''
     CV_results = []
     kf = KFold(n_splits = 10)
-    
+
     model = DecisionTreeClassifier()
     for train, valid in kf.split(X_training):
         clf = model.fit(X_training[train], y_training[train])
         CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf),]
-        
+
     best_accuracy = 0
     for result in CV_results:
         if(result[0] > best_accuracy):
             best_accuracy = result[0]
             best_clf = result[1]
-    
+
 
     return (best_clf, best_accuracy, CV_results)
 
@@ -170,7 +170,7 @@ def build_NN_classifier(X_training, y_training):
     @return
 	clf : the classifiers built in this function
     '''
-    
+
     classifiers = dict()
     for i in range(1,10):
         if (i % 2 != 0):
@@ -213,7 +213,7 @@ def build_SVM_classifier(X_training, y_training):
     '''
     Build a Support Vector Machine classifier based on the training set X_training, y_training.
 
-    #glenglenglen
+    #glennglennglenn
 
     @param
 	X_training: X_training[i,:] is the ith example
@@ -222,8 +222,22 @@ def build_SVM_classifier(X_training, y_training):
     @return
 	clf : the classifier built in this function
     '''
-    ##         "INSERT YOUR CODE HERE"
-    raise NotImplementedError()
+
+    CV_results = []
+    kf = KFold(n_splits = 10)
+
+    model = SVC()
+    for train, valid in kf.split(X_training):
+        clf = model.fit(X_training[train], y_training[train])
+        CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf),]
+
+    best_accuracy = 0
+    for result in CV_results:
+        if(result[0] > best_accuracy):
+            best_accuracy = result[0]
+            best_clf = result[1]
+
+    return (best_clf, best_accuracy, CV_results)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -237,18 +251,25 @@ if __name__ == "__main__": # call your functions here
 
     #Get Naive Bayes Classifier, accuracy, and other results via cross validation
     NB_clf, NB_clf_acc, NB_CV_results = build_NB_classifier(X_Train, Y_Train.ravel())
-    print("Naive Bayes Classifer best accuracy in k-fold cross validation:", NB_clf_acc)
+    print("Naive Bayes Classifier best accuracy in k-fold cross validation:", NB_clf_acc)
     #Run naive bayes on testing data
     NB_Test_acc = accuracy_score(Y_Test, NB_clf.predict(X_Test))
-    print("Naive Bayes Testing Accuracy: ", NB_Test_acc)        
+    print("Naive Bayes Testing Accuracy: ", NB_Test_acc)
 
     #check if decision tree needs cross validation
     #Get decision tree classifier
     DT_clf, DT_clf_acc, DT_CV_results = build_DT_classifier(X_Train, Y_Train.ravel())
-    print("Decision Tree Classififer best accuracy in k-fold cross validation:", DT_clf_acc)
+    print("Decision Tree Classifier best accuracy in k-fold cross validation:", DT_clf_acc)
     #Run decision tree on validation data and get accuracy
     DT_Test_acc = accuracy_score(Y_Test, DT_clf.predict(X_Test))
     print("Decision Tree Testing Accuracy:", DT_Test_acc)
+
+    #Get Support Vector Machine Classifier, accuracy, and other results via cross validation
+    SVM_clf, SVM_clf_acc, SVM_DV_results = build_SVM_classifier(X_Train, Y_Train.ravel())
+    print("Support Vector Machine Classifier best accuracy in k-fold cross validation:", SVM_clf_acc)
+    SVM_Test_acc = accuracy_score(Y_Test, SVM_clf.predict(X_Test))
+    #Run SVM on validation data and get accuracy
+    print("Support Vector Machine Accuracy:", SVM_Test_acc)
 
 
 
