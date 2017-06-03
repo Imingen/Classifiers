@@ -226,7 +226,7 @@ def build_SVM_classifier(X_training, y_training):
     CV_results = []
     kf = KFold(n_splits = 10)
 
-    model = SVC()
+    model = SVC(kernel='linear')
     for train, valid in kf.split(X_training):
         clf = model.fit(X_training[train], y_training[train])
         CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf),]
