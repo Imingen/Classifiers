@@ -8,7 +8,6 @@ You should complete the provided functions and add more functions and classes as
 Write a main function that calls different functions to perform the required tasks.
 
 '''
-#Add comments throughout code, fix headers esp @return
 
 import numpy as np
 from sklearn.naive_bayes import GaussianNB
@@ -19,23 +18,20 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#Arrays for separating data into training, validation and testing, and each into
-# X and Y where Y is the class label for each data point corresponding to a row in X
-
 
 def my_team():
     '''
     Return the list of the team members of this assignment submission as a list
     of triplet of the form (student_number, first_name, last_name)
-
+    @return a list of tuples where each tuple contains each members student_number and full name
     '''
 #    return [ (1234567, 'Ada', 'Lovelace'), (1234568, 'Grace', 'Hopper'), (1234569, 'Eva', 'Tardos') ]
     return [ (9890394, 'Vanessa', 'Gutierrez'), (9884050, 'Glenn', 'Christensen'), (9884076, 'Marius', 'Imingen') ]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def partition_dataset(X_All, Y_All):
-    '''Takes data set, randomizes order of rows, assigns 70% to Training, 15%
-    to Testing and 15% to Validation, and appropriate values to Y array
+    '''Takes data set, randomizes order of rows, assigns 80% to Training
+    and 20% to Validation, and appropriate values to X and Y arrays
 
     @param X_All not random data set
     @param Y_All not random data labels
@@ -118,10 +114,12 @@ def build_NB_classifier(X_training, y_training):
     model = GaussianNB()
     for train, valid in kf.split(X_training):
         clf = model.fit(X_training[train], y_training[train])
+        #adds the accuracy_score of validation data, the classifier and the accuracy_score of the training data
         CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf, accuracy_score(y_training[train], clf.predict(X_training[train]))),]
 
     best_validation_accuracy = 0
     for result in CV_results:
+        #Finds the result with the best accuracy score fro, the k-fold validation
         if (result[0] > best_validation_accuracy):
             best_validation_accuracy = result[0]
             best_clf = result[1]
@@ -151,10 +149,12 @@ def build_DT_classifier(X_training, y_training):
     model = DecisionTreeClassifier()
     for train, valid in kf.split(X_training):
         clf = model.fit(X_training[train], y_training[train])
+        #Adds the accuracy score of validation data, the classifier and the accuracy score of the training data to the list
         CV_results += [(accuracy_score(y_training[valid], clf.predict(X_training[valid])), clf, accuracy_score(y_training[train], clf.predict(X_training[train]))),]
 
     best_validation_accuracy = 0
     for result in CV_results:
+        #Finds the model with the best accuracy_score from the k-fold validation
         if(result[0] > best_validation_accuracy):
             best_validation_accuracy = result[0]
             best_clf = result[1]
